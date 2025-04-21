@@ -1,0 +1,23 @@
+name: CI Pipeline
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:dind
+        options: --privileged
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u sr9IVY --password-stdin
+
+      - name: Build Docker Image
+        run: docker build -t ghcr.io/sr9IVY/helloworld.py:${{ github.sha }} .
+
+      - name: Push Docker Image
+        run: docker push ghcr.io/sr9IVY/helloworld.py:${{ github.sha }}
